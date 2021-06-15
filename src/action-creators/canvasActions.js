@@ -1,9 +1,10 @@
 
-import {SET_TOOL} from '../actions';
+import {SET_CANVAS} from '../actions';
 
 
-export const setTool = ()  => {
+export const setCanvas = canvas => {
     return {
-        type: SET_TOOL
+        type: SET_CANVAS,
+        payload: canvas
     };
 }

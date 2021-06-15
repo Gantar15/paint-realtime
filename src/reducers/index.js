@@ -10,7 +10,6 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
     const {canvas, tools} = state;
-
     return {
         ...state,
         canvas: updateCanvas(canvas, action),
