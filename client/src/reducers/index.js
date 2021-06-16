@@ -4,16 +4,20 @@ import updateTool from './tool';
 
 
 const initialState = {
-    canvas: {},
-    tools: {}
+    canvas: {
+        undoList: [],
+        redoList: [],
+        canvas: null
+    },
+    tool: null
 };
 
 const reducer = (state = initialState, action) => {
-    const {canvas, tools} = state;
+    const {canvas, tool} = state;
     return {
         ...state,
         canvas: updateCanvas(canvas, action),
-        tools: updateTool(tools, action)
+        tool: updateTool(tool, action)
     };
 };
 
