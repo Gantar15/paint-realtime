@@ -19,11 +19,11 @@
     border: none;
     outline: none;
     cursor: pointer;
-    background-size: cover;
+    background-size: contain !important;
   }
   *:nth-child(n+2){
     margin-left: 10px;
-  }
+  } 
   .brush {
     background: url('../assets/img/brush.png') no-repeat center center;
   }
@@ -44,7 +44,8 @@
     background: url('../assets/img/undo.png') no-repeat center center;
   }
   .redo {
-    background: url('../assets/img/redo.png') no-repeat center center;
+    background: url('../assets/img/undo.png') no-repeat center center;
+    transform: rotateY(180deg);
   }
   .save {
     background: url('../assets/img/save.png') no-repeat center center;

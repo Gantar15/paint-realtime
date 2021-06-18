@@ -11,27 +11,39 @@ import Line from '../tools/Line';
 import '../styles/toolbar.scss';
 
 
-export const ToolBar = ({canvas: {canvas}, setTool, setFillColor,
-    undoAction, redoAction}) => {
+export const ToolBar = ({canvas: {canvas}, 
+    setTool, setFillColor,
+    undoAction, redoAction,
+    sessionId, socket}) => {
+
+    const download = () => {
+        const dataURL = canvas.toDataURL();
+        const a = document.createElement('a');
+        a.href = dataURL;
+        a.download = dataURL.replace('data:image/png;base64,', '');
+        document.body.append(a);
+        a.click();
+        a.remove();
+    };
 
     return (
         <div className="toolbar">
-            <button onClick={() => setTool(new Brush(canvas))} className="toolbar__btn brush"/>
-            <button onClick={() => setTool(new Rect(canvas))} className="toolbar__btn rect" />
-            <button onClick={() => setTool(new Cercle(canvas))} className="toolbar__btn circle" />
-            <button onClick={() => setTool(new Eraser(canvas))} className="toolbar__btn eraser" />
-            <button onClick={() => setTool(new Line(canvas))} className="toolbar__btn line" />
+            <button onClick={() => setTool(new Brush(canvas, socket, sessionId))} className="toolbar__btn brush"/>
+            <button onClick={() => setTool(new Rect(canvas, socket, sessionId))} className="toolbar__btn rect" />
+            <button onClick={() => setTool(new Cercle(canvas, socket, sessionId))} className="toolbar__btn circle" />
+            <button onClick={() => setTool(new Eraser(canvas, socket, sessionId))} className="toolbar__btn eraser" />
+            <button onClick={() => setTool(new Line(canvas, socket, sessionId))} className="toolbar__btn line" />
             <label htmlFor="fill-color">Цвет заливки</label>
             <input onChange={e => setFillColor(e.target.value)} id="fill-color" type="color"/>
             <button onClick={undoAction} className="toolbar__btn undo" />
             <button onClick={redoAction} className="toolbar__btn redo" />
-            <button className="toolbar__btn save" />
+            <button onClick={download} className="toolbar__btn save" />
         </div>
     );
 }
 
 
-const mapStateToProps = ({canvas}) => ({canvas});
+const mapStateToProps = ({canvas, sessionId, socket}) => ({canvas, sessionId, socket});
 const mapDispatchToProps = {
     setTool, setFillColor,
     undoAction, redoAction

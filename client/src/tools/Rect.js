@@ -20,6 +20,26 @@ export default class Rect extends Tool{
     }
     mouseUpHandler = ev => {
         this.mouseDown = false;
+        const currentX = this.getTouchCoords(ev).x;
+        const currentY = this.getTouchCoords(ev).y;
+        const width = currentX - this.startCoords.x;
+        const height =  currentY - this.startCoords.y;
+        this.socket.send(JSON.stringify({
+            method: 'draw',
+            id: this.sessionId,
+            figure: {
+                type: 'rect',
+                x: this.startCoords.x,
+                y: this.startCoords.y,
+                width, height,
+                strokeColor: this.ctx.strokeStyle,
+                fillColor: this.ctx.fillStyle,
+                lineWidth: this.ctx.lineWidth
+            }
+        }));
+        this.socket.send(JSON.stringify({
+            method: 'stop'
+        }));
     };
     mouseDownHandler = ev => {
         this.screenshot = this.canvas.toDataURL();
@@ -53,5 +73,21 @@ export default class Rect extends Tool{
             this.ctx.fill();
             this.ctx.stroke();
         };
+    }
+
+    static staticDraw(ctx, x, y, width, height, strokeColor, fillColor, lineWidth){
+        const oldStrokeStyle = ctx.strokeStyle;
+        const oldFillStyle = ctx.fillStyle;
+        const oldLineWidth = ctx.lineWidth;
+        ctx.strokeStyle = strokeColor;
+        ctx.fillStyle = fillColor;
+        ctx.lineWidth = lineWidth;
+        this.ctx.beginPath();
+        this.ctx.rect(x, y, width, height);
+        this.ctx.fill();
+        this.ctx.stroke();
+        ctx.strokeStyle = oldStrokeStyle;
+        ctx.fillStyle = oldFillStyle;
+        ctx.lineWidth = oldLineWidth;
     }
 }
