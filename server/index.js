@@ -29,6 +29,22 @@ app.ws('/', (ws, req) => {
     });
 });
 
+const connectionHandler = (ws, mess) => {
+    ws.id = mess.id;
+    broadcastMessage(ws, JSON.stringify(mess));
+};
+
+const broadcastMessage = (ws, mess) => {
+    wsHandle.clients.forEach(clientWs => {
+        if(clientWs.id === ws.id)
+            clientWs.send(mess);
+    });
+};
+
+app.listen(PORT, () => {
+    console.log(`Paint server was started on port ${PORT}`);
+});
+
 app.get('/image', (req, resp) => {
     try{
         fs.readFile(path.join(__dirname, 'db', `${req.query.id}.jpeg`), 'base64', (err, data) => {
@@ -41,7 +57,7 @@ app.get('/image', (req, resp) => {
         });
     } catch(err){
         console.log(err);
-        resp.status(500).json('Error');
+        resp.status(404).json('Not found save with this id');
     }
 });
 
@@ -52,26 +68,10 @@ app.post('/image', (req, resp) => {
             if(err){
                 throw err;
             }
-            resp.status(200).json({message: 'загружено'});
+            resp.status(200).json({message: 'Сохранено'});
         });
     } catch(err){
         console.log(err);
         resp.status(500).json('Error');
     }
 });
-
-app.listen(PORT, () => {
-    console.log(`Paint server was started on port ${PORT}`);
-});
-
-const connectionHandler = (ws, mess) => {
-    ws.id = mess.id;
-    broadcastMessage(ws, JSON.stringify(mess));
-};
-
-const broadcastMessage = (ws, mess) => {
-    wsHandle.clients.forEach(clientWs => {
-        if(clientWs.id === ws.id)
-            clientWs.send(mess);
-    });
-};

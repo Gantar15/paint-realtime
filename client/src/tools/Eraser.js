@@ -1,15 +1,32 @@
 import Brush from "./Brush";
 
 export default class Eraser extends Brush{
-    constructor(canvas){
-        super(canvas);
+    constructor(canvas, socket, sessionId){
+        super(canvas, socket, sessionId);
+        this.canvas.onmousemove = this.mouseMoveHandler;
     }
 
-    draw(x, y) {
-        const oldStrokeColor = this.ctx.strokeStyle;
-        this.ctx.strokeStyle = "white";
-        this.ctx.lineTo(x, y);
-        this.ctx.stroke();
-        this.ctx.strokeStyle = oldStrokeColor;
+    mouseMoveHandler = ev => {
+        if(this.mouseDown){
+            this.socket.send(JSON.stringify({
+                method: 'draw',
+                id: this.sessionId,
+                figure: {
+                    type: 'eraser',
+                    x: this.getCoords(ev).x,
+                    y: this.getCoords(ev).y,
+                    lineWidth: this.ctx.lineWidth
+                }
+            }));
+        }
+    };
+
+    static staticDraw(ctx, x, y, lineWidth) {
+        const oldLineWidth = ctx.lineWidth;
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = "white";
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.lineWidth = oldLineWidth;
     }
 }

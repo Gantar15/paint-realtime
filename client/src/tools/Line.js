@@ -1,8 +1,8 @@
 import Tool from "./Tool";
 
 export default class Line extends Tool{
-    constructor(canvas){
-        super(canvas);
+    constructor(canvas, socket, sessionId){
+        super(canvas, socket, sessionId);
         this.listen();
     }
 
@@ -20,6 +20,21 @@ export default class Line extends Tool{
     }
     mouseUpHandler = ev => {
         this.mouseDown = false;
+        this.socket.send(JSON.stringify({
+            method: 'draw',
+            id: this.sessionId,
+            figure: {
+                type: 'line',
+                x: this.getTouchCoords(ev).x,
+                y: this.getTouchCoords(ev).y,
+                startCoords: this.startCoords,
+                strokeColor: this.ctx.strokeStyle,
+                lineWidth: this.ctx.lineWidth
+            }
+        }));
+        this.socket.send(JSON.stringify({
+            method: 'stop'
+        }));
     };
     mouseDownHandler = ev => {
         this.screenshot = this.canvas.toDataURL();
@@ -46,8 +61,20 @@ export default class Line extends Tool{
             this.ctx.beginPath();
             this.ctx.moveTo(this.startCoords.x, this.startCoords.y)
             this.ctx.lineTo(x, y);
-            this.ctx.fill();
             this.ctx.stroke();
         };
+    }
+
+    static staticDraw(ctx, x, y, startCoords, strokeColor, lineWidth){
+        const oldStrokeStyle = ctx.strokeStyle;
+        const oldLineWidth = ctx.lineWidth;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(startCoords.x, startCoords.y)
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.strokeStyle = oldStrokeStyle;
+        ctx.lineWidth = oldLineWidth;
     }
 }

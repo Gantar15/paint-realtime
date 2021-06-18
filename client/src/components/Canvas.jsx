@@ -8,6 +8,9 @@ import {setCanvas, setTool,
     setSocket, setSessionId} from '../action-creators';
 import Brush from '../tools/Brush';
 import Cercle from '../tools/Cercle';
+import Rect from '../tools/Rect';
+import Line from '../tools/Line';
+import Eraser from '../tools/Eraser';
 
 import '../styles/canvas.scss';
 
@@ -82,6 +85,17 @@ export const Canvas = ({setCanvas, setTool,
                 Cercle.staticDraw(ctx, figure.x, figure.y, 
                     figure.radius, figure.strokeColor, figure.lineWidth);
                 break;
+            case 'rect':
+                Rect.staticDraw(ctx, figure.x, figure.y, figure.width, figure.height,
+                    figure.strokeColor, figure.fillColor, figure.lineWidth);
+                break;
+            case 'line':
+                Line.staticDraw(ctx, figure.x, figure.y, figure.startCoords,
+                    figure.strokeColor, figure.lineWidth);
+                break;
+            case 'eraser':
+                Eraser.staticDraw(ctx, figure.x, figure.y, figure.lineWidth);
+                break;
         }
     };
 
@@ -99,7 +113,7 @@ export const Canvas = ({setCanvas, setTool,
                 img: canvasRef.current.toDataURL()
             })
         }).then(resp => resp.json()).
-        then(data => console.log(data)).
+        then(data => console.log(data.message)).
         catch(err => console.warn(err));
     };
 

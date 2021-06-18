@@ -1,8 +1,8 @@
 import Tool from "./Tool";
 
 export default class Rect extends Tool{
-    constructor(canvas){
-        super(canvas);
+    constructor(canvas, socket, sessionId){
+        super(canvas, socket, sessionId);
         this.listen();
     }
 
@@ -82,10 +82,10 @@ export default class Rect extends Tool{
         ctx.strokeStyle = strokeColor;
         ctx.fillStyle = fillColor;
         ctx.lineWidth = lineWidth;
-        this.ctx.beginPath();
-        this.ctx.rect(x, y, width, height);
-        this.ctx.fill();
-        this.ctx.stroke();
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.fill();
+        ctx.stroke();
         ctx.strokeStyle = oldStrokeStyle;
         ctx.fillStyle = oldFillStyle;
         ctx.lineWidth = oldLineWidth;
