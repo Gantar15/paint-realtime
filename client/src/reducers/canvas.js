@@ -1,11 +1,17 @@
 
 import {SET_CANVAS, PUSH_TO_UNDO, PUSH_TO_REDO,
     UNDO, REDO} from '../actions';
+import {saveScreen} from '../utils/index';
+import {maxActionsStackSize} from '../utils/index';
 
 
 function pushToUndo(canvas, action){
     const undoList = [...canvas.undoList];
-    undoList.push(action.payload);
+
+    if(undoList.length < maxActionsStackSize){
+        undoList.push(action.payload);
+    }
+
     return {
         ...canvas,
         undoList
@@ -14,14 +20,18 @@ function pushToUndo(canvas, action){
 
 function pushToRedo(canvas, action){
     const redoList = [...canvas.redoList];
-    redoList.push(action.payload);
+
+    if(redoList.length < maxActionsStackSize){
+        redoList.push(action.payload);
+    }
+
     return {
         ...canvas,
         redoList
     };
 }
 
-function undo(canvas){
+function undo(canvas, sessionId){
     let dataUrl;
     let undoList = [...canvas.undoList];
     if(canvas.undoList.length){
@@ -33,9 +43,10 @@ function undo(canvas){
             const {width, height} = canvas.canvas;
             ctx.clearRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
+            saveScreen(canvas.canvas, sessionId);
         };
     } else{
-        alert('Undo stack has already clean ^-^');
+        console.info('Undo stack has already clean ^-^');
     }
 
     if(dataUrl){
@@ -47,7 +58,7 @@ function undo(canvas){
     return canvas;
 }
 
-function redo(canvas){
+function redo(canvas, sessionId){
     let dataUrl;
     let redoList = [...canvas.redoList];
     if(canvas.redoList.length){
@@ -59,9 +70,10 @@ function redo(canvas){
             const {width, height} = canvas.canvas;
             ctx.clearRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
+            saveScreen(canvas.canvas, sessionId);
         };
     } else{
-        alert('Redo stack has already clean 0_0');
+        console.info('Redo stack has already clean 0_0');
     }
 
     if(dataUrl){
@@ -73,7 +85,7 @@ function redo(canvas){
     return canvas;
 }
 
-export default function updateCanvas(canvas, action){
+export default function updateCanvas(canvas, action, sessionId){
     switch(action.type){
         case SET_CANVAS: 
             return {
@@ -85,9 +97,9 @@ export default function updateCanvas(canvas, action){
         case PUSH_TO_REDO: 
             return pushToRedo(canvas, action);
         case UNDO: 
-            return undo(canvas);
+            return undo(canvas, sessionId);
         case REDO: 
-            return redo(canvas);
+            return redo(canvas, sessionId);
         default: 
             return canvas;
     }

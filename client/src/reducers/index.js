@@ -41,10 +41,10 @@ const updateAppState = (state, action) => {
 };
 
 const reducer = (state = initialState, action) => {
-    const {canvas, tool} = state;
+    const {canvas, tool, sessionId} = state;
     return {
         ...state,
-        canvas: updateCanvas(canvas, action),
+        canvas: updateCanvas(canvas, action, sessionId),
         tool: updateTool(tool, action),
         ...updateAppState(state, action)
     };

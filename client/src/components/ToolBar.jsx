@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux'
 import {setTool, setFillColor, undoAction, redoAction} from '../action-creators';
+import { useParams } from 'react-router-dom';
 
 import Brush from '../tools/Brush';
 import Rect from '../tools/Rect';
@@ -16,6 +17,8 @@ export const ToolBar = ({canvas: {canvas},
     undoAction, redoAction,
     sessionId, socket}) => {
 
+    const params = useParams();
+
     const download = () => {
         const dataURL = canvas.toDataURL();
         const a = document.createElement('a');
@@ -24,6 +27,18 @@ export const ToolBar = ({canvas: {canvas},
         document.body.append(a);
         a.click();
         a.remove();
+    };
+
+    const undo = () => {
+        socket.send(JSON.stringify({
+            method: 'undo'
+        }));
+    };
+
+    const redo = () => {
+        socket.send(JSON.stringify({
+            method: 'redo'
+        }));
     };
 
     return (
@@ -35,8 +50,8 @@ export const ToolBar = ({canvas: {canvas},
             <button onClick={() => setTool(new Line(canvas, socket, sessionId))} className="toolbar__btn line" />
             <label htmlFor="fill-color">Цвет заливки</label>
             <input onChange={e => setFillColor(e.target.value)} id="fill-color" type="color"/>
-            <button onClick={undoAction} className="toolbar__btn undo" />
-            <button onClick={redoAction} className="toolbar__btn redo" />
+            <button onClick={undo} className="toolbar__btn undo" />
+            <button onClick={redo} className="toolbar__btn redo" />
             <button onClick={download} className="toolbar__btn save" />
         </div>
     );

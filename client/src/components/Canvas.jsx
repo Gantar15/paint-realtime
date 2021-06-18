@@ -4,13 +4,16 @@ import  {Modal, Button} from "react-bootstrap";
 import { useParams } from 'react-router-dom';
 
 import {setCanvas, setTool, 
-    pushToUndo, setUsername,
-    setSocket, setSessionId} from '../action-creators';
+    pushToUndo, pushToRedo,
+    setUsername,
+    setSocket, setSessionId,
+    undoAction, redoAction} from '../action-creators';
 import Brush from '../tools/Brush';
 import Cercle from '../tools/Cercle';
 import Rect from '../tools/Rect';
 import Line from '../tools/Line';
 import Eraser from '../tools/Eraser';
+import {saveScreen} from '../utils'; 
 
 import '../styles/canvas.scss';
 
@@ -18,7 +21,9 @@ import '../styles/canvas.scss';
 export const Canvas = ({setCanvas, setTool, 
     pushToUndo, setUsername, 
     setSocket, setSessionId,
-    username, canvas}) => {
+    username, canvas,
+    undoAction, redoAction,
+    socket}) => {
 
     const canvasRef = useRef();
     const usernameRef = useRef();
@@ -69,6 +74,18 @@ export const Canvas = ({setCanvas, setTool,
                     case 'stop':
                         canvas.canvas.getContext('2d').beginPath();
                         break;
+                    case 'push_to_undo':
+                        pushToUndo(data.dataUrl);
+                        break;
+                    case 'push_to_redo':
+                        pushToRedo(data.dataUrl);
+                        break;
+                    case 'undo':
+                        undoAction();
+                        break;
+                    case 'redo':
+                        redoAction();
+                        break;
                 }
             };
         }
@@ -97,24 +114,17 @@ export const Canvas = ({setCanvas, setTool,
                 Eraser.staticDraw(ctx, figure.x, figure.y, figure.lineWidth);
                 break;
         }
-    };
+    };    
 
     const pointerDownHandler = () => {
-        pushToUndo(canvasRef.current.toDataURL());
+        socket.send(JSON.stringify({
+            method: 'push_to_undo',
+            dataUrl: canvasRef.current.toDataURL()
+        }));
     };
 
     const pointerUpHandler = () => {
-        fetch(`http://localhost:5000/image?id=${params.id}`, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                img: canvasRef.current.toDataURL()
-            })
-        }).then(resp => resp.json()).
-        then(data => console.log(data.message)).
-        catch(err => console.warn(err));
+        saveScreen(canvasRef.current, params.id);
     };
 
     const connectHandler = () => {
@@ -143,12 +153,13 @@ export const Canvas = ({setCanvas, setTool,
 };
 
 
-const mapStateToProps = ({username, canvas}) => ({username, canvas});
+const mapStateToProps = ({username, canvas, socket}) => ({username, canvas, socket});
 
 const mapDispatchToProps = {
     setCanvas, setTool,
     pushToUndo, setUsername,
-    setSocket, setSessionId
+    setSocket, setSessionId,
+    undoAction, redoAction
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Canvas);

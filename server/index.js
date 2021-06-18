@@ -23,6 +23,10 @@ app.ws('/', (ws, req) => {
                 break;
             case 'draw':
             case 'stop':
+            case 'undo':
+            case 'redo':
+            case 'push_to_undo':
+            case 'push_to_redo':
                 broadcastMessage(ws, JSON.stringify(mess));
                 break;
         }
@@ -64,6 +68,7 @@ app.get('/image', (req, resp) => {
 app.post('/image', (req, resp) => {
     try{
         const data = req.body.img.replace('data:image/png;base64,', '');
+        console.log(req.query.id)
         fs.writeFile(path.join(__dirname, 'db', `${req.query.id}.jpeg`), data, 'base64', err => {
             if(err){
                 throw err;
