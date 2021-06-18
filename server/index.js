@@ -50,25 +50,23 @@ app.listen(PORT, () => {
 });
 
 app.get('/image', (req, resp) => {
-    try{
-        fs.readFile(path.join(__dirname, 'db', `${req.query.id}.jpeg`), 'base64', (err, data) => {
+    fs.readFile(path.join(__dirname, 'db', `${req.query.id}.jpeg`), 'base64', (err, data) => {
+        try{
             if(err){
                 throw err;
             }
             resp.status(200).json({
                 dataUrl: 'data:image/png;base64,' + data.toString()
             });
-        });
-    } catch(err){
-        console.log(err);
-        resp.status(404).json('Not found save with this id');
-    }
+        }catch(err){
+            resp.status(204).end();
+        }
+    });
 });
 
 app.post('/image', (req, resp) => {
     try{
         const data = req.body.img.replace('data:image/png;base64,', '');
-        console.log(req.query.id)
         fs.writeFile(path.join(__dirname, 'db', `${req.query.id}.jpeg`), data, 'base64', err => {
             if(err){
                 throw err;

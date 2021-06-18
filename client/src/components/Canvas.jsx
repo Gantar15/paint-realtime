@@ -35,13 +35,15 @@ export const Canvas = ({setCanvas, setTool,
             method: 'get'
         }).then(resp => resp.json()).
         then(data => {
-            const img = document.createElement('img');
-            img.src = data.dataUrl;
-            img.onload = () => {
-                canvasRef.current.getContext('2d').
-                drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+            if(data?.dataUrl){
+                const img = document.createElement('img');
+                img.src = data.dataUrl;
+                img.onload = () => {
+                    canvasRef.current.getContext('2d').
+                    drawImage(img, 0, 0, canvasRef.current.width, canvasRef.current.height);
+                };
                 setCanvas(canvasRef.current);
-            };
+            }
         }).
         catch(err => {
             console.warn(err);
@@ -72,7 +74,7 @@ export const Canvas = ({setCanvas, setTool,
                         drawScreen(data);
                         break;
                     case 'stop':
-                        canvas.canvas.getContext('2d').beginPath();
+                        canvasRef.current.getContext('2d').beginPath();
                         break;
                     case 'push_to_undo':
                         pushToUndo(data.dataUrl);
